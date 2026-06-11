@@ -146,6 +146,34 @@ CREATE TABLE IF NOT EXISTS provider_connection (
   status TEXT DEFAULT 'mock',
   createdAt INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
 );
+
+CREATE TABLE IF NOT EXISTS story_memory (
+  id TEXT PRIMARY KEY,
+  projectId TEXT NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL,
+  key TEXT NOT NULL,
+  value TEXT NOT NULL,
+  importance INTEGER DEFAULT 5,
+  sceneId TEXT,
+  characterId TEXT,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
+);
+
+CREATE TABLE IF NOT EXISTS usage_event (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  projectId TEXT,
+  providerId TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  units INTEGER DEFAULT 1,
+  billable INTEGER DEFAULT 0,
+  mode TEXT DEFAULT 'mock',
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
+);
+
+CREATE INDEX IF NOT EXISTS idx_story_memory_project ON story_memory(projectId);
+CREATE INDEX IF NOT EXISTS idx_usage_user ON usage_event(userId);
 `);
 
 console.log("Database migrated:", dbPath);

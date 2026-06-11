@@ -56,6 +56,7 @@ export function ProjectNav({ projectId }: { projectId: string }) {
   const links = [
     { href: `/projects/${projectId}/create`, label: "Wizard" },
     { href: `/projects/${projectId}/characters`, label: "Characters" },
+    { href: `/projects/${projectId}/memory`, label: "Story Bible" },
     { href: `/projects/${projectId}/storyboard`, label: "Storyboard" },
     { href: `/projects/${projectId}/library`, label: "Library", icon: Library },
     { href: `/projects/${projectId}/export`, label: "Export" },

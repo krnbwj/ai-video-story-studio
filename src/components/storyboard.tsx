@@ -35,6 +35,8 @@ export function Storyboard({ projectId }: { projectId: string }) {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [generating, setGenerating] = useState<string | null>(null);
+  const [autoRoute, setAutoRoute] = useState(true);
+  const [routeInfo, setRouteInfo] = useState<Record<string, string>>({});
   const providers = PROVIDER_DEFINITIONS.filter((p) =>
     ["text", "image", "video"].includes(p.kind),
   );
@@ -66,15 +68,23 @@ export function Storyboard({ projectId }: { projectId: string }) {
   async function generateShot(shot: Shot) {
     setGenerating(shot.id);
     const provider = providers.find((p) => p.id === shot.providerId) ?? providers[0];
-    await fetch(`/api/projects/${projectId}/generate`, {
+    const res = await fetch(`/api/projects/${projectId}/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         shotId: shot.id,
         providerId: shot.providerId ?? provider.id,
         kind: provider.kind,
+        autoRoute,
       }),
     });
+    const data = await res.json().catch(() => null);
+    if (data?.providerId) {
+      setRouteInfo((prev) => ({
+        ...prev,
+        [shot.id]: `${data.providerId} · ${data.mode}`,
+      }));
+    }
     setGenerating(null);
     load();
   }
@@ -85,6 +95,20 @@ export function Storyboard({ projectId }: { projectId: string }) {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/60 px-4 py-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={autoRoute}
+            onChange={(e) => setAutoRoute(e.target.checked)}
+            className="h-4 w-4 accent-violet-600"
+          />
+          Smart routing (auto-pick best available free provider, fall back on failure)
+        </label>
+        <span className="text-xs text-zinc-500">
+          Chinese-first · falls back to mock so nothing breaks
+        </span>
+      </div>
       {shots.map((shot, index) => {
         const asset = assetForShot(shot);
         const selectedChars = shot.characterIds
@@ -138,6 +162,11 @@ export function Storyboard({ projectId }: { projectId: string }) {
                     </Button>
                   ))}
                 </div>
+                {routeInfo[shot.id] ? (
+                  <p className="mt-3 text-xs text-violet-300">
+                    routed → {routeInfo[shot.id]}
+                  </p>
+                ) : null}
                 <Button
                   className="mt-4"
                   onClick={() => generateShot(shot)}

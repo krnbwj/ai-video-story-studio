@@ -2,14 +2,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { assets, characters, generationJobs, providerConnections, shots } from "@/db/schema";
+import { assets, characters, generationJobs, shots } from "@/db/schema";
 import { getProjectForUser } from "@/lib/project-service";
-import {
-  buildCharacterContext,
-  generateWithProvider,
-  getProvider,
-} from "@/lib/providers/registry";
-import { simpleDecrypt } from "@/lib/crypto";
+import { buildCharacterContext, getProvider } from "@/lib/providers/registry";
+import { routeGeneration } from "@/lib/providers/router";
+import { buildMemoryContext, getMemory } from "@/lib/memory";
 import { generateId } from "@/lib/utils";
 
 export async function POST(
@@ -24,14 +21,12 @@ export async function POST(
   const project = await getProjectForUser(projectId, session.user.id);
   if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const { shotId, providerId, kind } = await req.json();
+  const { shotId, providerId, kind, autoRoute } = await req.json();
   const [shot] = await db.select().from(shots).where(eq(shots.id, shotId)).limit(1);
   if (!shot) return NextResponse.json({ error: "Shot not found" }, { status: 404 });
 
   const provider = getProvider(providerId);
-  if (!provider) {
-    return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
-  }
+  const resolvedKind = kind ?? provider?.kind ?? "video";
 
   const characterIds: string[] = shot.characterIds
     ? JSON.parse(shot.characterIds)
@@ -45,20 +40,8 @@ export async function POST(
   const selected = projectCharacters.filter((c) => characterIds.includes(c.id));
   const characterContext = buildCharacterContext(selected);
 
-  const connections = await db
-    .select()
-    .from(providerConnections)
-    .where(eq(providerConnections.userId, session.user.id));
-  const connection = connections.find((c) => c.providerId === providerId);
-
-  let apiKey: string | undefined;
-  if (connection?.apiKey && connection.providerId === providerId) {
-    try {
-      apiKey = simpleDecrypt(connection.apiKey);
-    } catch {
-      apiKey = undefined;
-    }
-  }
+  const memoryEntries = await getMemory(projectId);
+  const memoryContext = buildMemoryContext(memoryEntries);
 
   const jobId = generateId();
   await db.insert(generationJobs).values({
@@ -66,25 +49,29 @@ export async function POST(
     userId: session.user.id,
     projectId,
     shotId,
-    providerId,
-    kind: kind ?? provider.kind,
+    providerId: providerId ?? "auto",
+    kind: resolvedKind,
     status: "processing",
-    input: JSON.stringify({ prompt: shot.prompt, characterContext }),
+    input: JSON.stringify({
+      prompt: shot.prompt,
+      characterContext,
+      memoryContext,
+    }),
   });
 
-  const result = await generateWithProvider(
-    providerId,
-    {
-      prompt: shot.prompt ?? "",
-      kind: kind ?? provider.kind,
-      characterContext,
-    },
-    apiKey,
-  );
+  const outcome = await routeGeneration({
+    userId: session.user.id,
+    projectId,
+    kind: resolvedKind,
+    prompt: shot.prompt ?? "",
+    characterContext,
+    memoryContext,
+    preferredProviderId: autoRoute ? undefined : providerId,
+  });
 
   const assetId = generateId();
-  const primary = result.assets?.[0];
-  const assetType = primary?.type ?? provider.kind;
+  const primary = outcome.assets?.[0];
+  const assetType = primary?.type ?? resolvedKind;
   const assetUrl = primary?.type === "text" ? "" : (primary?.url ?? "");
   const assetPrompt =
     primary?.type === "text" ? (primary.text ?? shot.prompt ?? "") : shot.prompt;
@@ -94,7 +81,7 @@ export async function POST(
     projectId,
     shotId,
     type: assetType,
-    providerId,
+    providerId: outcome.providerId,
     prompt: assetPrompt ?? "",
     url: assetUrl,
     status: "completed",
@@ -102,17 +89,25 @@ export async function POST(
 
   await db
     .update(shots)
-    .set({ assetId, status: "completed", providerId })
+    .set({ assetId, status: "completed", providerId: outcome.providerId })
     .where(eq(shots.id, shotId));
 
   await db
     .update(generationJobs)
     .set({
       status: "completed",
-      result: JSON.stringify(result),
+      providerId: outcome.providerId,
+      result: JSON.stringify(outcome),
       updatedAt: new Date(),
     })
     .where(eq(generationJobs.id, jobId));
 
-  return NextResponse.json({ jobId, assetId, result });
+  return NextResponse.json({
+    jobId,
+    assetId,
+    providerId: outcome.providerId,
+    mode: outcome.mode,
+    attempts: outcome.attempts,
+    result: outcome,
+  });
 }

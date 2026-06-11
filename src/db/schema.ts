@@ -189,6 +189,41 @@ export const providerConnections = sqliteTable("provider_connection", {
     .default(sql`(unixepoch() * 1000)`),
 });
 
+export const storyMemory = sqliteTable("story_memory", {
+  id: text("id").primaryKey(),
+  projectId: text("projectId")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull(),
+  key: text("key").notNull(),
+  value: text("value").notNull(),
+  importance: integer("importance").default(5),
+  sceneId: text("sceneId"),
+  characterId: text("characterId"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
+export const usageEvents = sqliteTable("usage_event", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  projectId: text("projectId"),
+  providerId: text("providerId").notNull(),
+  kind: text("kind").notNull(),
+  units: integer("units").default(1),
+  billable: integer("billable", { mode: "boolean" }).default(false),
+  mode: text("mode").default("mock"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
 export const projectsRelations = relations(projects, ({ many, one }) => ({
   user: one(users, { fields: [projects.userId], references: [users.id] }),
   episodes: many(episodes),
