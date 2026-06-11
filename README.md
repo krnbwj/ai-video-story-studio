@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Video & Story Studio
 
-## Getting Started
+Create long-form and short-form AI video stories with frozen character profiles, a visual storyboard, 34 pluggable free AI providers (Chinese-first), and one-click export for offline DaVinci Resolve editing.
 
-First, run the development server:
+## Features
+
+- **Wizard creation flow**: Basics → Characters → Story → Look → Generate
+- **Frozen characters**: Lock descriptions, traits, seeds, and references for consistent generations
+- **Storyboard production**: Per-shot prompts, provider picker, character assignment, inline previews
+- **34 provider adapters**: DeepSeek, Qwen, GLM, Kimi, Kling, Wan, MiniMax, ElevenLabs, and more
+- **Mock mode**: Runs fully locally with zero API keys
+- **Export bundle**: Zip with images, clips, audio, scripts, `story.json`, and `assemble.sh`
+- **Auth**: Email/password with verification + password reset; optional Google OAuth
+
+## Quick start (local, zero credentials)
 
 ```bash
+cp .env.example .env.local
+# Set AUTH_SECRET to any random string
+
+npm install
+npm run db:migrate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Sign up — verification email prints to your terminal in dev mode
+2. Create a project via the wizard
+3. Add frozen characters
+4. Generate shots on the storyboard (mock assets by default)
+5. Export the project zip for offline editing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Activating real providers
 
-## Learn More
+Add API keys to `.env.local` or connect them per-user on the **Connections** page.
 
-To learn more about Next.js, take a look at the following resources:
+| Provider | Env var | Free signup |
+|----------|---------|-------------|
+| DeepSeek | `DEEPSEEK_API_KEY` | https://platform.deepseek.com/ |
+| Qwen / Wan | `DASHSCOPE_API_KEY` | https://dashscope.console.aliyun.com/ |
+| GLM (z.ai) | `ZHIPU_API_KEY` | https://open.bigmodel.cn/ |
+| Kimi | `MOONSHOT_API_KEY` | https://platform.moonshot.cn/ |
+| MiniMax | `MINIMAX_API_KEY` | https://www.minimaxi.com/ |
+| Kling | `KLING_API_KEY` | https://klingai.com/ |
+| ElevenLabs | `ELEVENLABS_API_KEY` | https://elevenlabs.io/ |
+| Groq | `GROQ_API_KEY` | https://console.groq.com/ |
+| OpenRouter | `OPENROUTER_API_KEY` | https://openrouter.ai/ |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See `.env.example` for the full list.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Google sign-in (optional)
 
-## Deploy on Vercel
+1. Create OAuth credentials at https://console.cloud.google.com/
+2. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env.local`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Production (Vercel)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push to GitHub
+2. Import to Vercel
+3. Set env vars: `AUTH_SECRET`, `NEXTAUTH_URL`, `DATABASE_URL` (Neon Postgres), `RESEND_API_KEY`
+4. Deploy
+
+For Postgres in production, point `DATABASE_URL` to Neon and run migrations.
+
+## Tech stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS
+- shadcn-style UI (Radix + CVA)
+- Drizzle ORM + SQLite (local) / Postgres (prod)
+- Auth.js v5
+- Vercel AI SDK + OpenAI-compatible adapters
+- archiver for export zips
+
+## Offline editing
+
+The export zip includes:
+
+```
+/images/
+/clips/
+/audio/
+/scripts/
+story.json
+assemble.sh
+```
+
+Run `bash assemble.sh` locally with ffmpeg, or import clips into DaVinci Resolve using the manifest.
