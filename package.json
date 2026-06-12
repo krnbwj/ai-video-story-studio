@@ -1,7 +1,29 @@
 {
   "name": "ai-story-studio",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.2.0",
+  "private": false,
+  "description": "Open-source AI video story studio with 34+ free providers, frozen characters, story memory, and DaVinci export",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krnbwj/ai-video-story-studio.git"
+  },
+  "homepage": "https://github.com/krnbwj/ai-video-story-studio#readme",
+  "bugs": {
+    "url": "https://github.com/krnbwj/ai-video-story-studio/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai-video",
+    "storyboard",
+    "deepseek",
+    "openrouter",
+    "qwen",
+    "kling",
+    "davinci-resolve",
+    "open-source",
+    "nextjs",
+    "ai-story"
+  ],
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
