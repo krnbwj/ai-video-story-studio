@@ -5,6 +5,7 @@ const googleEnabled =
   !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
 
 export const authConfig = {
+  trustHost: true,
   providers: [
     ...(googleEnabled
       ? [
@@ -17,6 +18,7 @@ export const authConfig = {
   ],
   pages: {
     signIn: "/auth/signin",
+    error: "/auth/error",
   },
   session: { strategy: "jwt" },
   callbacks: {

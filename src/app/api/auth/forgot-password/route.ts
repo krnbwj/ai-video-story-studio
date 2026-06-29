@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { generateId } from "@/lib/utils";
-import { sendEmail, resetPasswordEmailHtml } from "@/lib/email";
+import { sendTemplateEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   const { email } = await req.json();
@@ -24,11 +24,7 @@ export async function POST(req: Request) {
 
     const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
     const link = `${baseUrl}/auth/reset-password?token=${token}`;
-    await sendEmail(
-      normalized,
-      "Reset your AI Story Studio password",
-      resetPasswordEmailHtml(link),
-    );
+    await sendTemplateEmail(normalized, "reset", { link });
   }
 
   return NextResponse.json({ ok: true });

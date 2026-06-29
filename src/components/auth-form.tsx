@@ -25,7 +25,11 @@ export function SignInForm({ googleEnabled }: { googleEnabled: boolean }) {
     });
     setLoading(false);
     if (res?.error) {
-      setError("Invalid credentials or email not verified.");
+      setError(
+        res.error === "CredentialsSignin"
+          ? "Invalid email/password, or email not verified yet."
+          : "Sign-in failed. Check NEXTAUTH_URL matches 127.0.0.1:3000.",
+      );
       return;
     }
     router.push("/dashboard");

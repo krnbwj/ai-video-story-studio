@@ -6,6 +6,14 @@ declare module "better-sqlite3" {
   }
 }
 
+declare module "@vercel/blob" {
+  export function put(
+    pathname: string,
+    body: Buffer | string,
+    options: { access: "public" | "private" },
+  ): Promise<{ url: string }>;
+}
+
 declare module "nodemailer" {
   const nodemailer: {
     createTransport(options: object): {

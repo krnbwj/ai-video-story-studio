@@ -7,14 +7,27 @@ import { authConfig } from "@/auth.config";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 
+const googleEnabled =
+  !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
+
+/**
+ * DrizzleAdapter is only attached when Google OAuth is enabled.
+ * Credentials + JWT sessions conflict with the database session adapter and
+ * cause the generic "server configuration" error at /api/auth/error.
+ */
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: DrizzleAdapter(db, {
-    usersTable: schema.users,
-    accountsTable: schema.accounts,
-    sessionsTable: schema.sessions,
-    verificationTokensTable: schema.verificationTokens,
-  }),
   ...authConfig,
+  secret: process.env.AUTH_SECRET,
+  ...(googleEnabled
+    ? {
+        adapter: DrizzleAdapter(db, {
+          usersTable: schema.users,
+          accountsTable: schema.accounts,
+          sessionsTable: schema.sessions,
+          verificationTokensTable: schema.verificationTokens,
+        }),
+      }
+    : {}),
   providers: [
     ...authConfig.providers,
     Credentials({

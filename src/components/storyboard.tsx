@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { PROVIDER_DEFINITIONS } from "@/lib/providers/config";
+import { StoryboardDnd } from "@/components/storyboard-dnd";
 import { Play, Sparkles } from "lucide-react";
 
 interface Shot {
@@ -89,6 +90,20 @@ export function Storyboard({ projectId }: { projectId: string }) {
     load();
   }
 
+  async function reorderShots(orderedIds: string[]) {
+    setShots((prev) =>
+      orderedIds.map((id, i) => {
+        const shot = prev.find((s) => s.id === id)!;
+        return { ...shot, orderIndex: i };
+      }),
+    );
+    await fetch(`/api/projects/${projectId}/shots`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reorder", orderedIds }),
+    });
+  }
+
   function assetForShot(shot: Shot) {
     return assets.find((a) => a.id === shot.assetId);
   }
@@ -109,14 +124,19 @@ export function Storyboard({ projectId }: { projectId: string }) {
           Chinese-first · falls back to mock so nothing breaks
         </span>
       </div>
-      {shots.map((shot, index) => {
+      <StoryboardDnd
+        shotIds={shots.map((s) => s.id)}
+        onReorder={reorderShots}
+      >
+        {(shotId, index) => {
+        const shot = shots.find((s) => s.id === shotId)!;
         const asset = assetForShot(shot);
         const selectedChars = shot.characterIds
           ? JSON.parse(shot.characterIds)
           : [];
 
         return (
-          <Card key={shot.id}>
+          <Card key={shot.id} className="mb-4">
             <div className="flex flex-col gap-4 lg:flex-row">
               <div className="flex-1">
                 <CardTitle>
@@ -196,7 +216,8 @@ export function Storyboard({ projectId }: { projectId: string }) {
             </div>
           </Card>
         );
-      })}
+        }}
+      </StoryboardDnd>
       <Button
         variant="outline"
         onClick={async () => {

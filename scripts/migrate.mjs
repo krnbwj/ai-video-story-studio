@@ -17,7 +17,16 @@ CREATE TABLE IF NOT EXISTS user (
   passwordHash TEXT,
   resetToken TEXT,
   resetTokenExpiry INTEGER,
+  role TEXT NOT NULL DEFAULT 'user',
   createdAt INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
+);
+
+CREATE TABLE IF NOT EXISTS email_template (
+  id TEXT PRIMARY KEY,
+  key TEXT NOT NULL UNIQUE,
+  subject TEXT NOT NULL,
+  html TEXT NOT NULL,
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
 );
 
 CREATE TABLE IF NOT EXISTS account (
@@ -175,5 +184,44 @@ CREATE TABLE IF NOT EXISTS usage_event (
 CREATE INDEX IF NOT EXISTS idx_story_memory_project ON story_memory(projectId);
 CREATE INDEX IF NOT EXISTS idx_usage_user ON usage_event(userId);
 `);
+
+// Safe column additions for databases created before these columns existed.
+function ensureColumn(table, column, ddl) {
+  const cols = sqlite.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some((c) => c.name === column)) {
+    sqlite.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+    console.log(`Added column ${table}.${column}`);
+  }
+}
+
+ensureColumn("user", "role", "role TEXT NOT NULL DEFAULT 'user'");
+
+// Seed default email templates (idempotent).
+const templates = [
+  {
+    key: "verify",
+    subject: "Verify your AI Story Studio account",
+    html: '<div style="font-family:sans-serif;max-width:480px;margin:auto"><h2>Welcome to AI Video &amp; Story Studio</h2><p>Confirm your email to start creating.</p><p><a href="{{link}}" style="background:#7c3aed;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Verify email</a></p><p style="color:#888;font-size:12px">If the button does not work, paste this link: {{link}}</p></div>',
+  },
+  {
+    key: "reset",
+    subject: "Reset your AI Story Studio password",
+    html: '<div style="font-family:sans-serif;max-width:480px;margin:auto"><h2>Password reset</h2><p>Click below to choose a new password.</p><p><a href="{{link}}" style="background:#7c3aed;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Reset password</a></p><p style="color:#888;font-size:12px">Did not request this? Ignore this email.</p></div>',
+  },
+  {
+    key: "welcome",
+    subject: "Welcome to AI Video & Story Studio",
+    html: '<div style="font-family:sans-serif;max-width:480px;margin:auto"><h2>You are in!</h2><p>Create a project, freeze your characters, and generate your first scene. All 34 providers work in mock mode with no keys.</p></div>',
+  },
+];
+
+const upsert = sqlite.prepare(
+  `INSERT INTO email_template (id, key, subject, html, updatedAt)
+   VALUES (@id, @key, @subject, @html, unixepoch() * 1000)
+   ON CONFLICT(key) DO NOTHING`,
+);
+for (const t of templates) {
+  upsert.run({ id: `tpl_${t.key}`, ...t });
+}
 
 console.log("Database migrated:", dbPath);

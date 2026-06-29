@@ -15,7 +15,18 @@ export const users = sqliteTable("user", {
   passwordHash: text("passwordHash"),
   resetToken: text("resetToken"),
   resetTokenExpiry: integer("resetTokenExpiry", { mode: "timestamp_ms" }),
+  role: text("role").notNull().default("user"),
   createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
+export const emailTemplates = sqliteTable("email_template", {
+  id: text("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  subject: text("subject").notNull(),
+  html: text("html").notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(unixepoch() * 1000)`),
 });

@@ -67,7 +67,7 @@ Open **http://127.0.0.1:3000**
 4. Generate shots on the storyboard (mock assets, no keys needed)
 5. Export zip for offline DaVinci Resolve editing
 
-For detailed setup, troubleshooting, and provider activation, see **[docs/SCAFFOLDING.md](docs/SCAFFOLDING.md)**.
+For detailed setup, troubleshooting, and provider activation, see **[docs/SCAFFOLDING.md](docs/SCAFFOLDING.md)** and **[docs/BUILDING.md](docs/BUILDING.md)**.
 
 ### Production mode (more stable than dev)
 

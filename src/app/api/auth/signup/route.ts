@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users, verificationTokens } from "@/db/schema";
 import { generateId } from "@/lib/utils";
-import { sendEmail, verificationEmailHtml } from "@/lib/email";
+import { sendTemplateEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   const { name, email, password } = await req.json();
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
   const link = `${baseUrl}/auth/verify?token=${token}&email=${encodeURIComponent(normalized)}`;
-  await sendEmail(normalized, "Verify your AI Story Studio account", verificationEmailHtml(link));
+  await sendTemplateEmail(normalized, "verify", { link });
 
   return NextResponse.json({ ok: true });
 }

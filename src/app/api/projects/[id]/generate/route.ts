@@ -7,6 +7,7 @@ import { getProjectForUser } from "@/lib/project-service";
 import { buildCharacterContext, getProvider } from "@/lib/providers/registry";
 import { routeGeneration } from "@/lib/providers/router";
 import { buildMemoryContext, getMemory } from "@/lib/memory";
+import { storeFromUrl } from "@/lib/storage";
 import { generateId } from "@/lib/utils";
 
 export async function POST(
@@ -72,9 +73,23 @@ export async function POST(
   const assetId = generateId();
   const primary = outcome.assets?.[0];
   const assetType = primary?.type ?? resolvedKind;
-  const assetUrl = primary?.type === "text" ? "" : (primary?.url ?? "");
+  let assetUrl = primary?.type === "text" ? "" : (primary?.url ?? "");
   const assetPrompt =
     primary?.type === "text" ? (primary.text ?? shot.prompt ?? "") : shot.prompt;
+
+  if (assetUrl && assetUrl.startsWith("http")) {
+    try {
+      const ext =
+        assetType === "image" ? "jpg" : assetType === "video" ? "mp4" : "mp3";
+      assetUrl = await storeFromUrl(assetUrl, {
+        projectId,
+        type: assetType,
+        ext,
+      });
+    } catch {
+      // keep remote URL if local/blob persist fails
+    }
+  }
 
   await db.insert(assets).values({
     id: assetId,

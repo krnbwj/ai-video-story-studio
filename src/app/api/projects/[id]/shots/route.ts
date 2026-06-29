@@ -34,6 +34,16 @@ export async function PATCH(
     return NextResponse.json({ id: shotId });
   }
 
+  if (body.action === "reorder" && Array.isArray(body.orderedIds)) {
+    for (let i = 0; i < body.orderedIds.length; i++) {
+      await db
+        .update(shots)
+        .set({ orderIndex: i })
+        .where(eq(shots.id, body.orderedIds[i]));
+    }
+    return NextResponse.json({ ok: true });
+  }
+
   const { shotId, ...updates } = body;
   await db
     .update(shots)

@@ -17,9 +17,17 @@ interface Provider {
   envKey?: string;
 }
 
+interface PingState {
+  loading?: boolean;
+  ok?: boolean;
+  status?: string;
+  message?: string;
+}
+
 export function ConnectionsPanel() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [keys, setKeys] = useState<Record<string, string>>({});
+  const [pings, setPings] = useState<Record<string, PingState>>({});
 
   useEffect(() => {
     fetch("/api/connections")
@@ -27,7 +35,23 @@ export function ConnectionsPanel() {
       .then((data) => setProviders(data.providers ?? []));
   }, []);
 
+  async function testKey(providerId: string) {
+    const apiKey = keys[providerId];
+    if (!apiKey) return;
+    setPings((p) => ({ ...p, [providerId]: { loading: true } }));
+    const res = await fetch("/api/connections/ping", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ providerId, apiKey }),
+    });
+    const data = await res.json();
+    setPings((p) => ({ ...p, [providerId]: { ...data, loading: false } }));
+    return data;
+  }
+
   async function saveKey(providerId: string) {
+    const result = await testKey(providerId);
+    if (result && result.ok === false) return; // don't save invalid keys
     await fetch("/api/connections", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -74,10 +98,27 @@ export function ConnectionsPanel() {
                     setKeys((prev) => ({ ...prev, [provider.id]: e.target.value }))
                   }
                 />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => testKey(provider.id)}
+                  disabled={pings[provider.id]?.loading}
+                >
+                  {pings[provider.id]?.loading ? "Testing..." : "Test"}
+                </Button>
                 <Button size="sm" onClick={() => saveKey(provider.id)}>
                   Connect
                 </Button>
               </div>
+              {pings[provider.id] && !pings[provider.id]?.loading ? (
+                <p
+                  className={`mt-2 text-xs ${
+                    pings[provider.id]?.ok ? "text-green-400" : "text-red-400"
+                  }`}
+                >
+                  {pings[provider.id]?.status}: {pings[provider.id]?.message}
+                </p>
+              ) : null}
               {provider.signupUrl ? (
                 <a
                   href={provider.signupUrl}

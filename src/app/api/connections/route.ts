@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { providerConnections } from "@/db/schema";
 import { listProviders } from "@/lib/providers/registry";
+import { pingProvider } from "@/lib/providers/ping";
 import { simpleEncrypt } from "@/lib/crypto";
 import { generateId } from "@/lib/utils";
 
@@ -34,7 +35,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { providerId, apiKey } = await req.json();
+  const { providerId, apiKey, skipPing } = await req.json();
+  if (!skipPing) {
+    const ping = await pingProvider(providerId, String(apiKey));
+    if (!ping.ok) {
+      return NextResponse.json(
+        { ok: false, error: ping.message, ping },
+        { status: 400 },
+      );
+    }
+  }
   const encrypted = simpleEncrypt(String(apiKey));
   const existing = await db
     .select()

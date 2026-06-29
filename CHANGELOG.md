@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-06-12
+
+### Fixed
+- Auth server configuration error (`/api/auth/error`) — DrizzleAdapter only when Google OAuth enabled; aligned `NEXTAUTH_URL` to `127.0.0.1`; explicit `AUTH_SECRET`
+- Custom `/auth/error` page with troubleshooting hints
+
+### Added
+- `docs/BUILDING.md` — how we build, test user, Brevo email, provider ping flow
+- `docs/ROADMAP.md` — superadmin/CMS planned post-MVP
+- Server-side ping validation on `/api/connections` before saving keys
+- Job polling API, storage layer, storyboard drag-reorder (dnd-kit)
+
 ## [0.2.0] - 2026-06-12
 
 ### Added
