@@ -27,8 +27,9 @@ export async function pingProvider(
 
   if (def.baseUrl) {
     const started = Date.now();
+    const base = def.baseUrl.replace(/\/$/, "");
     try {
-      const res = await fetch(`${def.baseUrl.replace(/\/$/, "")}/models`, {
+      const res = await fetch(`${base}/models`, {
         headers: { Authorization: `Bearer ${apiKey}` },
         signal: AbortSignal.timeout(10000),
       });
@@ -44,7 +45,34 @@ export async function pingProvider(
       if (res.status === 401 || res.status === 403) {
         return { ok: false, status: "error", message: "Invalid API key (unauthorized)" };
       }
-      // Some compatible endpoints don't expose /models but the key may still work.
+      // DeepSeek and others may not expose /models — try a tiny chat ping.
+      if (def.kind === "text" && def.model) {
+        const chatRes = await fetch(`${base}/chat/completions`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: def.model,
+            messages: [{ role: "user", content: "ping" }],
+            max_tokens: 5,
+          }),
+          signal: AbortSignal.timeout(15000),
+        });
+        const chatLatency = Date.now() - started;
+        if (chatRes.ok) {
+          return {
+            ok: true,
+            status: "live",
+            message: `Connected via chat (${chatLatency}ms)`,
+            latencyMs: chatLatency,
+          };
+        }
+        if (chatRes.status === 401 || chatRes.status === 403) {
+          return { ok: false, status: "error", message: "Invalid API key (unauthorized)" };
+        }
+      }
       return {
         ok: true,
         status: "unverified",

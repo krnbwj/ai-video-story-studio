@@ -195,6 +195,12 @@ function ensureColumn(table, column, ddl) {
 }
 
 ensureColumn("user", "role", "role TEXT NOT NULL DEFAULT 'user'");
+ensureColumn("project", "wizardData", "wizardData TEXT");
+
+sqlite.exec(`
+CREATE UNIQUE INDEX IF NOT EXISTS idx_provider_conn_user_provider
+ON provider_connection(userId, providerId);
+`);
 
 // Seed default email templates (idempotent).
 const templates = [
