@@ -25,11 +25,12 @@
     "ai-story"
   ],
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
-    "build": "next build",
+    "dev": "node scripts/prepare-db.mjs && next dev --hostname 127.0.0.1",
+    "build": "node scripts/prepare-db.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node scripts/migrate.mjs",
+    "db:migrate:pg": "node scripts/migrate-pg.mjs",
     "db:seed-user": "node scripts/seed-user.mjs"
   },
   "dependencies": {

@@ -4,8 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { authConfig } from "@/auth.config";
-import { db } from "@/db";
-import * as schema from "@/db/schema";
+import { db, schema } from "@/db";
 
 const googleEnabled =
   !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
