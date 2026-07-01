@@ -31,9 +31,12 @@ export async function PATCH(
   }
   const { id } = await params;
   const body = await req.json();
-  await db
-    .update(projects)
-    .set({ ...body, updatedAt: new Date() })
-    .where(eq(projects.id, id));
+  const updates: Record<string, unknown> = { ...body, updatedAt: new Date() };
+  if (updates.wizardData && typeof updates.wizardData === "object") {
+    updates.wizardData = JSON.stringify(updates.wizardData);
+  }
+  delete updates.id;
+  delete updates.userId;
+  await db.update(projects).set(updates).where(eq(projects.id, id));
   return NextResponse.json({ ok: true });
 }

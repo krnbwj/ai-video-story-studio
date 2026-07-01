@@ -80,6 +80,7 @@ export const projects = sqliteTable("project", {
   style: text("style"),
   aspectRatio: text("aspectRatio").default("16:9"),
   wizardStep: integer("wizardStep").default(1),
+  wizardData: text("wizardData"),
   status: text("status").default("draft"),
   createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()

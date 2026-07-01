@@ -19,7 +19,17 @@ export default async function ProjectCreatePage({
   return (
     <AppShell title={project.title}>
       <ProjectNav projectId={id} />
-      <CreateWizard projectId={id} />
+      <CreateWizard
+        projectId={id}
+        initial={{
+          title: project.title,
+          description: project.description,
+          genre: project.genre,
+          style: project.style,
+          wizardStep: project.wizardStep,
+          wizardData: project.wizardData,
+        }}
+      />
     </AppShell>
   );
 }
