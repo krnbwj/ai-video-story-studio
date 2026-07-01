@@ -186,10 +186,16 @@ Import clips into **DaVinci Resolve**, run `assemble.sh` with ffmpeg, or use `st
 
 ```bash
 git push origin main
-npx vercel
+npx vercel --prod
 ```
 
-Production env vars: `AUTH_SECRET`, `NEXTAUTH_URL`, `DATABASE_URL` (Neon), `RESEND_API_KEY`.
+Set in Vercel → Settings → Environment Variables:
+
+- `AUTH_SECRET` (required)
+- `NEXTAUTH_URL` (your production URL)
+- `DATABASE_URL` (Neon Postgres for production)
+- `DEEPSEEK_API_KEY` (recommended fallback for AI scripts)
+- `BREVO_API_KEY` + `EMAIL_FROM` (optional email)
 
 ---
 
