@@ -9,6 +9,8 @@
 
 Runs locally with **zero API keys**. Smart routing switches between free Chinese and global models automatically. Export everything for offline editing in DaVinci Resolve.
 
+**Live demo:** [https://10-murex-seven.vercel.app](https://10-murex-seven.vercel.app) · Deploy guide: [docs/VERCEL.md](docs/VERCEL.md)
+
 [Quick Start](#quick-start) · [Features](#features) · [Architecture](ARCHITECTURE.md) · [Scaffolding Guide](docs/SCAFFOLDING.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 
 ---

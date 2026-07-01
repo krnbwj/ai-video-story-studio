@@ -32,6 +32,8 @@ In Vercel → Project → Settings → Environment Variables:
 npx vercel --prod
 ```
 
+**Production URL:** https://10-murex-seven.vercel.app
+
 ## 5. Seed a test user on production
 
 ```bash
