@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { PROVIDER_DEFINITIONS } from "@/lib/providers/config";
 import { StoryboardDnd } from "@/components/storyboard-dnd";
+import { AiGenerateButton } from "@/components/ai-generate-button";
 import { Play, Sparkles } from "lucide-react";
 
 interface Shot {
@@ -154,6 +155,23 @@ export function Storyboard({ projectId }: { projectId: string }) {
                   }
                   onBlur={() => updateShot(shot.id, { prompt: shot.prompt })}
                 />
+                <div className="mt-2">
+                  <AiGenerateButton
+                    label="AI: Enhance shot prompt"
+                    type="enhance"
+                    projectId={projectId}
+                    prompt={shot.prompt ?? ""}
+                    onResult={(text) => {
+                      updateShot(shot.id, { prompt: text });
+                      setShots((prev) =>
+                        prev.map((s) =>
+                          s.id === shot.id ? { ...s, prompt: text } : s,
+                        ),
+                      );
+                    }}
+                    disabled={!shot.prompt?.trim()}
+                  />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <select
                     className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
