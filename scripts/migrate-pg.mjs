@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS project (
   "aspectRatio" TEXT DEFAULT '16:9',
   "wizardStep" INTEGER DEFAULT 1,
   "wizardData" TEXT,
+  "editorData" TEXT,
   status TEXT DEFAULT 'draft',
   "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -188,6 +189,7 @@ ON provider_connection("userId", "providerId");
 `;
 
 await sql.unsafe(statements);
+await sql.unsafe(`ALTER TABLE project ADD COLUMN IF NOT EXISTS "editorData" TEXT;`);
 
 const templates = [
   {

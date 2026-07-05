@@ -196,6 +196,7 @@ function ensureColumn(table, column, ddl) {
 
 ensureColumn("user", "role", "role TEXT NOT NULL DEFAULT 'user'");
 ensureColumn("project", "wizardData", "wizardData TEXT");
+ensureColumn("project", "editorData", "editorData TEXT");
 
 sqlite.exec(`
 CREATE UNIQUE INDEX IF NOT EXISTS idx_provider_conn_user_provider

@@ -81,6 +81,7 @@ export const projects = sqliteTable("project", {
   aspectRatio: text("aspectRatio").default("16:9"),
   wizardStep: integer("wizardStep").default(1),
   wizardData: text("wizardData"),
+  editorData: text("editorData"),
   status: text("status").default("draft"),
   createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()
