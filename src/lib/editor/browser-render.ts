@@ -66,7 +66,8 @@ export async function renderTimelineInBrowser(
   onProgress?.(95, "Finalizing…");
   const out = await ffmpeg.readFile("output.mp4");
   onProgress?.(100, "Done");
-  const bytes = out instanceof Uint8Array ? out : new TextEncoder().encode(String(out));
+  const raw = out instanceof Uint8Array ? out : new TextEncoder().encode(String(out));
+  const bytes = new Uint8Array(raw);
   return new Blob([bytes], { type: "video/mp4" });
 }
 
@@ -136,7 +137,8 @@ export async function renderShortInBrowser(
     "short.mp4",
   ]);
   const out = await ffmpeg.readFile("short.mp4");
-  const bytes = out instanceof Uint8Array ? out : new TextEncoder().encode(String(out));
+  const raw = out instanceof Uint8Array ? out : new TextEncoder().encode(String(out));
+  const bytes = new Uint8Array(raw);
   return new Blob([bytes], { type: "video/mp4" });
 }
 
