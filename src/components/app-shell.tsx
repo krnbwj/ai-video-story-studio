@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { Clapperboard, Link2, Library, LayoutDashboard } from "lucide-react";
+import { Clapperboard, Film, Link2, Library, LayoutDashboard } from "lucide-react";
 
 export function AppShell({
   children,
@@ -58,6 +58,7 @@ export function ProjectNav({ projectId }: { projectId: string }) {
     { href: `/projects/${projectId}/characters`, label: "Characters" },
     { href: `/projects/${projectId}/memory`, label: "Story Bible" },
     { href: `/projects/${projectId}/storyboard`, label: "Storyboard" },
+    { href: `/projects/${projectId}/editor`, label: "Editor", icon: Film },
     { href: `/projects/${projectId}/library`, label: "Library", icon: Library },
     { href: `/projects/${projectId}/export`, label: "Export" },
   ];

@@ -35,6 +35,9 @@ export async function PATCH(
   if (updates.wizardData && typeof updates.wizardData === "object") {
     updates.wizardData = JSON.stringify(updates.wizardData);
   }
+  if (updates.editorData && typeof updates.editorData === "object") {
+    updates.editorData = JSON.stringify(updates.editorData);
+  }
   delete updates.id;
   delete updates.userId;
   await db.update(projects).set(updates).where(eq(projects.id, id));
