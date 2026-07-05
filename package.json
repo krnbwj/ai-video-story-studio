@@ -31,7 +31,8 @@
     "lint": "eslint",
     "db:migrate": "node scripts/migrate.mjs",
     "db:migrate:pg": "node scripts/migrate-pg.mjs",
-    "db:seed-user": "node scripts/seed-user.mjs"
+    "db:seed-user": "node scripts/seed-user.mjs",
+    "db:seed-demo": "node scripts/seed-demo-editor.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
