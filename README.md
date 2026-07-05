@@ -1,7 +1,7 @@
 # AI Video & Story Studio
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](VERSION)
 [![Providers](https://img.shields.io/badge/providers-34-green.svg)](src/lib/providers/config.ts)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
 
@@ -38,6 +38,7 @@ Creating consistent AI video stories today requires juggling 10+ platforms, losi
 | **Story Bible** | Memory layer for continuity, arcs, timeline, style anchors |
 | **Smart routing** | Auto-pick best free provider (Chinese-first), fall back on failure |
 | **Storyboard** | Per-shot prompts, provider picker, character chips, inline previews |
+| **Video editor** | CapCut-style timeline, effects, shorts export, browser ffmpeg render — [docs/EDITOR.md](docs/EDITOR.md) |
 | **34 providers** | Text, image, video, audio — Chinese models prioritized |
 | **OpenRouter** | One key → dozens of free models (Llama, Mistral, Gemma...) |
 | **Mock mode** | Full flow works offline with placeholder assets |
@@ -68,8 +69,16 @@ Open **http://127.0.0.1:3000**
 3. Add frozen characters + story memory
 4. Generate shots on the storyboard (mock assets, no keys needed)
 5. Export zip for offline DaVinci Resolve editing
+6. Open **Editor** to trim clips, add effects, and export shorts
 
-For detailed setup, troubleshooting, and provider activation, see **[docs/SCAFFOLDING.md](docs/SCAFFOLDING.md)** and **[docs/BUILDING.md](docs/BUILDING.md)**.
+For the pre-built demo timeline:
+
+```bash
+pnpm run db:seed-demo
+# Sign in: admin@studio.local / admin1234 → "Studio Demo — Neon City Chronicles" → Editor
+```
+
+For detailed setup, troubleshooting, and provider activation, see **[docs/SCAFFOLDING.md](docs/SCAFFOLDING.md)** and **[docs/BUILDING.md](docs/BUILDING.md)**. Editor guide: **[docs/EDITOR.md](docs/EDITOR.md)**.
 
 ### Production mode (more stable than dev)
 

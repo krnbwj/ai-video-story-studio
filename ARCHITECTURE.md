@@ -7,7 +7,7 @@ AI Video & Story Studio is a **local-first, Vercel-deployable** web application 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Browser UI                         │
-│  Wizard · Characters · Story Bible · Storyboard · Export   │
+│  Wizard · Characters · Story Bible · Storyboard · Editor · Export   │
 └──────────────────────────┬──────────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────────┐
@@ -149,3 +149,4 @@ User clicks "Generate" on storyboard
 - **Add memory kind:** Extend `MemoryKind` type + UI labels in `memory-manager.tsx`.
 - **Wire real media API:** Replace mock branch in provider adapter's `generate()`.
 - **Add billing:** Query `usage_event` table where `billable = true`; gate on `billableUnits` threshold.
+- **Video editor:** Timeline state in `project.editorData`; client-side ffmpeg.wasm render + offline `render.sh`. See [docs/EDITOR.md](docs/EDITOR.md).

@@ -1,6 +1,6 @@
 {
   "name": "ai-story-studio",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": false,
   "description": "Open-source AI video story studio with 34+ free providers, frozen characters, story memory, and DaVinci export",
   "repository": {
